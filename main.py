@@ -6,6 +6,7 @@ from multiprocessing import cpu_count
 from time import time
 from datetime import datetime
 from glob import glob
+from statistics import harmonic_mean
 
 
 N_JOBS = cpu_count()
@@ -75,7 +76,7 @@ def get_best(G: nx.MultiDiGraph, best_subgraphs, new_subgraphs):
 def compression_rate(G: nx.MultiDiGraph, H: nx.MultiDiGraph):
     n_rate = len(H.nodes) / len(G.nodes)
     e_rate = len(H.edges) / len(G.edges)
-    return 2 / (1/n_rate + 1/e_rate)
+    return harmonic_mean([n_rate, e_rate])
 
 
 def run(G: nx.MultiDiGraph):
@@ -125,7 +126,7 @@ if __name__ == '__main__':
         if glob(subgraph_path):
             continue
 
-        print(datetime.now().isoformat(), path)
+        print(f'{datetime.now().isoformat()} | {path} | ', end='', flush=True)
         G = load_graph(path)
         the_best = run(G)
         print(' '.join(the_best.nodes))
