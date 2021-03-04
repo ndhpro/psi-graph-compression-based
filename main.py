@@ -82,6 +82,7 @@ def run(G: nx.MultiDiGraph):
     best_subgraphs = []
     subgraphs = []
     the_best = None
+    t = time()
 
     for _ in range(10):
         new_subgraphs = set()
@@ -119,7 +120,9 @@ if __name__ == '__main__':
     print(len(graph_paths))
 
     for path in graph_paths:
-        if glob(path):
+        subgraph_path = path.replace(
+            'graphs', 'subgraphs').replace('.txt', '.gexf')
+        if glob(subgraph_path):
             continue
 
         print(datetime.now().isoformat(), path)
@@ -127,6 +130,4 @@ if __name__ == '__main__':
         the_best = run(G)
         print(' '.join(the_best.nodes))
 
-        subgraph_path = path.replace(
-            'graphs', 'subgraphs').replace('.txt', '.gexf')
         nx.write_gexf(the_best, subgraph_path)
