@@ -4,6 +4,7 @@ from math import log2
 from joblib import Parallel, delayed
 from multiprocessing import cpu_count
 from time import time
+from datetime import datetime
 from glob import glob
 
 
@@ -44,7 +45,7 @@ def MDL(G: nx.MultiDiGraph, H: nx.MultiDiGraph):
     return length(H) + length(K)
 
 
-def init_subgraphs(G: nx.MultiDiGraph):
+def initial_subgraphs(G: nx.MultiDiGraph):
     subgraphs = []
     for node in G.nodes:
         succ = list(G.successors(node))
@@ -78,22 +79,26 @@ def compression_rate(G: nx.MultiDiGraph, H: nx.MultiDiGraph):
 
 
 def run(G: nx.MultiDiGraph):
-    t = time()
     best_subgraphs = []
-    subgraphs = init_subgraphs(G)
+    subgraphs = []
     the_best = None
 
-    while True:
+    for _ in range(10):
         new_subgraphs = set()
-        for sg in subgraphs:
-            succs = set()
-            for node in sg.split():
-                succs.update(G.successors(node))
-            for node in succs:
-                new_sg = ' '.join(sorted(sg.split() + [node]))
-                new_subgraphs.add(new_sg)
+        if not best_subgraphs:
+            new_subgraphs = initial_subgraphs(G)
+        else:
+            for sg in subgraphs:
+                succs = set()
+                for node in sg.split():
+                    succs.update(G.successors(node))
+                for node in succs:
+                    new_sg = ' '.join(sorted(sg.split() + [node]))
+                    new_subgraphs.add(new_sg)
 
         best_subgraphs, subgraphs = get_best(G, best_subgraphs, new_subgraphs)
+        if not best_subgraphs:
+            return G
 
         if the_best and compression_rate(G, the_best) > 0.1:
             break
@@ -106,7 +111,7 @@ def run(G: nx.MultiDiGraph):
     # plt.figure()
     # nx.draw(the_best, with_labels=True)
     # plt.savefig('best_subgraph.png')
-    return the_best, time()-t
+    return the_best
 
 
 if __name__ == '__main__':
@@ -114,10 +119,13 @@ if __name__ == '__main__':
     print(len(graph_paths))
 
     for path in graph_paths:
-        print(path)
+        if glob(path):
+            continue
+
+        print(datetime.now().isoformat(), path)
         G = load_graph(path)
-        the_best, t = run(G)
-        print(the_best.nodes, '%.2f' % t)
+        the_best = run(G)
+        print(' '.join(the_best.nodes))
 
         subgraph_path = path.replace(
             'graphs', 'subgraphs').replace('.txt', '.gexf')
