@@ -6,7 +6,6 @@ from multiprocessing import cpu_count
 from time import time
 from datetime import datetime
 from glob import glob
-from statistics import harmonic_mean
 
 
 N_JOBS = cpu_count()
@@ -36,12 +35,13 @@ def MDL(G: nx.MultiDiGraph, H: nx.MultiDiGraph):
     K.remove_edges_from(H.edges)
 
     K.add_node(' ')
-    for edge in G.edges:
-        u, v, _ = edge
-        if u in H.nodes and v not in H.nodes:
-            K.add_edge(' ', v)
-        if u not in H.nodes and v in H.nodes:
-            K.add_edge(u, ' ')
+    for node in H.nodes:
+        for succ in G.successors(node):
+            if succ not in H.nodes:
+                K.add_edge(' ', succ)
+        for pred in G.predecessors(node):
+            if pred not in H.nodes:
+                K.add_edge(pred, ' ')
 
     return length(H) + length(K)
 
@@ -73,12 +73,6 @@ def get_best(G: nx.MultiDiGraph, best_subgraphs, new_subgraphs):
     return best_subgraphs, subgraphs
 
 
-def compression_rate(G: nx.MultiDiGraph, H: nx.MultiDiGraph):
-    n_rate = len(H.nodes) / len(G.nodes)
-    e_rate = len(H.edges) / len(G.edges)
-    return harmonic_mean([n_rate, e_rate])
-
-
 def run(G: nx.MultiDiGraph):
     best_subgraphs = []
     subgraphs = []
@@ -95,40 +89,40 @@ def run(G: nx.MultiDiGraph):
                 for node in sg.split():
                     succs.update(G.successors(node))
                 for node in succs:
-                    new_sg = ' '.join(sorted(sg.split() + [node]))
-                    new_subgraphs.add(new_sg)
+                    if node not in sg.split() and not node.startswith('_'):
+                        new_sg = ' '.join(sorted(sg.split() + [node]))
+                        new_subgraphs.add(new_sg)
 
         best_subgraphs, subgraphs = get_best(G, best_subgraphs, new_subgraphs)
         if not best_subgraphs:
-            return G
+            return G, time()-t
 
-        if the_best and compression_rate(G, the_best) > 0.1:
-            break
-        else:
-            the_best = G.subgraph(best_subgraphs[0][0].split())
+        nodes = best_subgraphs[0][0].split()
+        the_best = G.subgraph(nodes)
 
-        if not subgraphs or time()-t > 20:
+        if not subgraphs or time()-t > 60:
             break
 
     # plt.figure()
     # nx.draw(the_best, with_labels=True)
     # plt.savefig('best_subgraph.png')
-    return the_best
+    return the_best, time()-t
 
 
 if __name__ == '__main__':
-    graph_paths = glob('data/graphs/malware/*.txt')[:5000]
+    graph_paths = sorted(glob('data/graphs/malware/*.txt'))[:5000]
     print(len(graph_paths))
 
     for path in graph_paths:
         subgraph_path = path.replace(
             'graphs', 'subgraphs').replace('.txt', '.gexf')
-        if glob(subgraph_path):
-            continue
+        # if glob(subgraph_path):
+        #     continue
 
-        print(f'{datetime.now().isoformat()} | {path} | ', end='', flush=True)
+        print(path)
         G = load_graph(path)
-        the_best = run(G)
+        the_best, t = run(G)
         print(' '.join(the_best.nodes))
+        print('%.2f\n' % t)
 
         nx.write_gexf(the_best, subgraph_path)
