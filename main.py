@@ -103,19 +103,18 @@ def run(G: nx.MultiDiGraph):
         if not subgraphs or time()-t > 60:
             break
 
-    plt.figure()
-    nx.draw(the_best, with_labels=True)
-    plt.savefig('best_subgraph.png')
+    # plt.figure()
+    # nx.draw(the_best, with_labels=True)
+    # plt.savefig('best_subgraph.png')
     return the_best, time()-t
 
 
 if __name__ == '__main__':
-    graph_paths = sorted(glob('data/psi_graph/bashlite/*.txt'))[:5000]
-    print(len(graph_paths))
+    graph_paths = sorted(glob('data/psi_graph/bashlite/*.txt'))
 
     for path in graph_paths:
         subgraph_path = path.replace(
-            'psi_graph', 'subgraphs').replace('.txt', '.gexf')
+            'psi_graph', 'subgraphs').replace('.txt', '')
         # if glob(subgraph_path):
         #     continue
 
@@ -125,5 +124,4 @@ if __name__ == '__main__':
         print(' '.join(the_best.nodes))
         print('%.2f\n' % t)
 
-        nx.write_gexf(the_best, subgraph_path)
-        exit()
+        nx.write_edgelist(the_best, subgraph_path + ".edgelist")
