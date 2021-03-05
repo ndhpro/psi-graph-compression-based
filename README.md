@@ -1,4 +1,4 @@
-# Project Title
+# PSI-graph compression-based malware detection
 
 ## Table of Contents
 

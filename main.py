@@ -1,6 +1,6 @@
 import networkx as nx
 from math import log2
-# from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt
 from joblib import Parallel, delayed
 from multiprocessing import cpu_count
 from time import time
@@ -66,8 +66,8 @@ def get_best(G: nx.MultiDiGraph, best_subgraphs, new_subgraphs):
 
     best_subgraphs.extend(new_subgraphs)
 
-    best_subgraphs = sorted(best_subgraphs, key=lambda k: k[1])[:50]
-    new_subgraphs = sorted(new_subgraphs, key=lambda k: k[1])[:50]
+    best_subgraphs = sorted(best_subgraphs, key=lambda k: k[1])[:20]
+    new_subgraphs = sorted(new_subgraphs, key=lambda k: k[1])[:20]
     subgraphs = [k[0] for k in new_subgraphs]
 
     return best_subgraphs, subgraphs
@@ -103,19 +103,19 @@ def run(G: nx.MultiDiGraph):
         if not subgraphs or time()-t > 60:
             break
 
-    # plt.figure()
-    # nx.draw(the_best, with_labels=True)
-    # plt.savefig('best_subgraph.png')
+    plt.figure()
+    nx.draw(the_best, with_labels=True)
+    plt.savefig('best_subgraph.png')
     return the_best, time()-t
 
 
 if __name__ == '__main__':
-    graph_paths = sorted(glob('data/graphs/malware/*.txt'))[:5000]
+    graph_paths = sorted(glob('data/psi_graph/bashlite/*.txt'))[:5000]
     print(len(graph_paths))
 
     for path in graph_paths:
         subgraph_path = path.replace(
-            'graphs', 'subgraphs').replace('.txt', '.gexf')
+            'psi_graph', 'subgraphs').replace('.txt', '.gexf')
         # if glob(subgraph_path):
         #     continue
 
@@ -126,3 +126,4 @@ if __name__ == '__main__':
         print('%.2f\n' % t)
 
         nx.write_gexf(the_best, subgraph_path)
+        exit()
