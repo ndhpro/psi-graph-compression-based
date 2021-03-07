@@ -1,3 +1,4 @@
+import os
 import networkx as nx
 from math import log2
 from matplotlib import pyplot as plt
@@ -6,6 +7,7 @@ from multiprocessing import cpu_count
 from time import time
 from datetime import datetime
 from glob import glob
+from tqdm import tqdm
 
 
 N_JOBS = cpu_count()
@@ -110,16 +112,22 @@ def run(G: nx.MultiDiGraph):
 
 
 if __name__ == '__main__':
-    graph_paths = sorted(glob('data/psi_graph/benign/*.txt'))[2000:]
+    graph_paths = sorted(glob('data/psi_graph/*/*.txt'))
 
     for path in graph_paths:
+        print(path)
         subgraph_path = path.replace(
             'psi_graph', 'subgraphs').replace('.txt', '.edgelist')
+        G = load_graph(path)
+
+        if len(G.nodes) <= 20:
+            os.remove(subgraph_path)
+            nx.write_edgelist(G, subgraph_path)
+            continue
+
         if glob(subgraph_path):
             continue
 
-        print(path)
-        G = load_graph(path)
         the_best, t = run(G)
         print(' '.join(the_best.nodes))
         print('%.2f\n' % t)

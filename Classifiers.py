@@ -68,9 +68,6 @@ class Classifiers:
             print(clf_name)
             self.clf[clf_name].fit(X_train, y_train)
 
-            if self.model_path:
-                dump(ftsl, self.model_path + 'ftsl.joblib')
-
             y_pred = self.clf[clf_name].predict(X_test)
             y_prob = self.clf[clf_name].predict_proba(X_test)[:, 1]
 
