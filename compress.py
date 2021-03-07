@@ -112,20 +112,19 @@ def run(G: nx.MultiDiGraph):
 
 
 if __name__ == '__main__':
-    graph_paths = sorted(glob('data/psi_graph/*/*.txt'))
+    graph_paths = sorted(glob('data/psi_graph/benign/*.txt'))
 
     for path in graph_paths:
         print(path)
         subgraph_path = path.replace(
             'psi_graph', 'subgraphs').replace('.txt', '.edgelist')
-        G = load_graph(path)
-
-        if len(G.nodes) <= 20:
-            os.remove(subgraph_path)
-            nx.write_edgelist(G, subgraph_path)
+        if glob(subgraph_path):
             continue
 
-        if glob(subgraph_path):
+        G = load_graph(path)
+        if len(G.nodes) <= 20:
+            print('_')
+            nx.write_edgelist(G, subgraph_path)
             continue
 
         the_best, t = run(G)
