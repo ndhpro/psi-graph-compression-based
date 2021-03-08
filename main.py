@@ -56,6 +56,7 @@ if __name__ == '__main__':
         X_test = test.loc[:, 'x_0':].values
 
         classifiers = Classifiers(
+            # algo=['KNN', 'DT'],
             model_path='models/'
         )
         classifiers.run(X_train, X_test, y_train, y_test)

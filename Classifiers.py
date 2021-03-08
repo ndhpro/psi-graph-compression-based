@@ -93,7 +93,7 @@ class Classifiers:
         roc_auc = dict(sorted(roc_auc.items(), key=lambda k: k[1][0]))
         for name, color in zip(roc_auc, COLORS):
             auc, fpr, tpr = roc_auc[name]
-            plt.plot(fpr, tpr, color=color, marker='-',
+            plt.plot(fpr, tpr, color=color, marker=',',
                      label="%s (AUC = %0.4f)" % (name, auc))
             plt.plot([0, 1], [0, 1], "b--")
             plt.xlim([0.0, 1.0])
