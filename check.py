@@ -7,7 +7,7 @@ from joblib import Parallel, delayed
 from multiprocessing import cpu_count
 
 
-paths = glob('data/psi_graph/benign/*.txt')
+paths = glob('data/psi_graph/*/*.txt')
 
 
 def check(path):
@@ -19,8 +19,7 @@ def check(path):
         return 0
     sg = nx.read_edgelist(sg_path, create_using=nx.MultiDiGraph)
 
-    if len(graph.nodes) == len(sg.nodes):
-        os.remove(sg_path)
+    if len(graph.nodes) < 30:
         return 1
     else:
         return 0

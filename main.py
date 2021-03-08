@@ -1,3 +1,4 @@
+import sys
 import networkx as nx
 import pandas as pd
 from glob import glob
@@ -33,24 +34,28 @@ def vectorize():
         nodes=nodes,
     )
 
-    # embeddings = graph2vec.train(path_train)
-    # embeddings.to_csv('data/train.csv', index=None)
+    embeddings = graph2vec.train(path_train)
+    embeddings.to_csv('data/train.csv', index=None)
 
-    graph2vec.load_model()
+    # graph2vec.load_model()
     embeddings = graph2vec.apply(path_test)
     embeddings.to_csv('data/test.csv', index=None)
 
 
 if __name__ == '__main__':
-    # get_nodes()
-    # vectorize()
+    command = sys.argv[1]
+    if command == 'node':
+        get_nodes()
+    elif command == 'vectorize':
+        vectorize()
 
-    train = pd.read_csv('data/train.csv')
-    test = pd.read_csv('data/test.csv')
-    X_train = train.loc[:, 'x_0':].values
-    X_test = test.loc[:, 'x_0':].values
+    elif command == 'classify':
+        train = pd.read_csv('data/train.csv')
+        test = pd.read_csv('data/test.csv')
+        X_train = train.loc[:, 'x_0':].values
+        X_test = test.loc[:, 'x_0':].values
 
-    classifiers = Classifiers(
-        model_path='models/'
-    )
-    classifiers.run(X_train, X_test, y_train, y_test)
+        classifiers = Classifiers(
+            model_path='models/'
+        )
+        classifiers.run(X_train, X_test, y_train, y_test)
