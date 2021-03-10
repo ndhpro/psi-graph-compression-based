@@ -79,7 +79,7 @@ def compress(path):
 
 
 if __name__ == '__main__':
-    graph_paths = sorted(glob('data/psi_graph/bashlite/*.txt'))
+    graph_paths = sorted(glob('data/psi_graph/benign/*.txt'))
     Parallel(n_jobs=N_JOBS, verbose=100)(delayed(compress)(path)
                                          for path in graph_paths)
     # compress(graph_paths[0])
