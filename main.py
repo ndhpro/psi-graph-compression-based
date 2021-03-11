@@ -9,7 +9,7 @@ from sklearn.preprocessing import Normalizer, StandardScaler
 from imblearn.over_sampling import SMOTE
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, confusion_matrix
 
 paths = glob('data/patterns/*/*.txt')
 
@@ -27,8 +27,9 @@ labels = []
 for path in paths:
     graph = nx.read_edgelist(path)
     if len(graph) < 10:
-        psi_path = path.replace('patterns', 'psi_graph')
-        graph = largest_cc(psi_path)
+        # psi_path = path.replace('patterns', 'psi_graph')
+        # graph = largest_cc(psi_path)
+        continue
     mapping = dict(zip(graph, range(len(graph))))
     graph = nx.relabel_nodes(graph, mapping)
     graphs.append(graph)
@@ -64,4 +65,6 @@ estimator = RandomForestClassifier(n_jobs=-1)
 estimator.fit(X_train, y_train)
 y_pred = estimator.predict(X_test)
 report = classification_report(y_test, y_pred, digits=4)
+cnf = confusion_matrix(y_test, y_pred)
 print(report)
+print(cnf)
